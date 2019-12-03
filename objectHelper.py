@@ -11,54 +11,20 @@ class ObjectHelper:
 		allAtributes = {**objAtributes, **classAtributes}
 		return dict(filter(lambda atr: not atr[0].startswith("_"), allAtributes.items()))
 
-	def addColumns(self, tableName, object, atributes):
+	def getAllObjects(self, tableName):
+		print("start")
 		cursor = self.connection.cursor()
-		for key in atributes.keys():
-			cursor.execute(f"SELECT EXISTS(SELECT column_name FROM information_schema.columns WHERE table_name='{tableName}' and column_name='{self.columnName(object, key)}');")
-			isColumnExists = cursor.fetchall()[0][0]
-			if not isColumnExists:
-				cursor.execute(f"ALTER TABLE {tableName} ADD COLUMN {self.columnName(object, key)} {self.columnType(object, key)};")
+		cursor.execute(f"SELECT * FROM {tableName};")
+		allRecords = cursor.fetchall()
+		descriptions = list([desc.name for desc in cursor.description[1:]])
+		descriptions = filter(lambda desc: not desc.endswith("database_str") , list(descriptions))
+		descriptions = map(lambda desc: desc[:desc.rfind("_")] , descriptions)
+		return map(lambda record: list(filter(lambda value: value != "None", record)), allRecords)
+		for column in descriptions:
+			print(f"Column: {column}")
+		for r in allRecords:
+			print("Record")
+			for some in r:
+				print(f"Some {some}")
 		cursor.close()
-
-	def insertObject(self, tableName, object, atributes):
-		cursor = self.connection.cursor()
-		columnNames = ", ".join(map(lambda key: self.columnName(object, key), atributes.keys()))
-		values = ", ".join(map(lambda key: self.columnValue(object, key), atributes.keys()))
-		cursor.execute(f"INSERT INTO {tableName} (databaseID, {columnNames}) VALUES(DEFAULT, {values});")
-		cursor.close()
-
-	def columnName(self, object, atribute):
-		if type(getattr(object, atribute)).__name__ == "int":
-			return atribute + "_int"
-		elif type(getattr(object, atribute)).__name__ == "float":
-			return atribute + "_float"
-		elif type(getattr(object, atribute)).__name__ == "str":
-			return atribute + "_str"
-		elif type(getattr(object, atribute)).__name__ == "None":
-			return atribute + "_none"
-		else:
-			print(f"Got unexpected state for type {atribute}")
-
-	def columnType(self, object, atribute):
-		if type(getattr(object, atribute)).__name__ == "int":
-			return "INTEGER"
-		elif type(getattr(object, atribute)).__name__ == "float":
-			return "REAL"
-		elif type(getattr(object, atribute)).__name__ == "str":
-			return "VARCHAR(255)"
-		elif type(getattr(object, atribute)).__name__ == "None":
-			return "VARCHAR(1)"
-		else:
-			print(f"Got unexpected state for type {atribute}")
-
-	def columnValue(self, object, atribute):
-		if type(getattr(object, atribute)).__name__ == "int":
-			return str(getattr(object, atribute))
-		elif type(getattr(object, atribute)).__name__ == "float":
-			return str(getattr(object, atribute))
-		elif type(getattr(object, atribute)).__name__ == "str":
-			return f"'{getattr(object, atribute)}'"
-		elif type(getattr(object, atribute)).__name__ == "None":
-			return "n"
-		else:
-			print(f"Got unexpected state for type {atribute}")
+		return {}

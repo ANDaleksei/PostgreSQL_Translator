@@ -17,7 +17,7 @@ class DatabaseHelper:
 		else:
 			return records[0][0]
 
-	def createDatabase(self, tableName):
+	def createTable(self, tableName):
 		cursor = self.connection.cursor()
 		cursor.execute(f"CREATE TABLE {tableName} (databaseID serial PRIMARY KEY);")
 		cursor.close()
@@ -35,4 +35,52 @@ class DatabaseHelper:
 			isColumnExists = cursor.fetchall()[0][0]
 			if not isColumnExists:
 				cursor.execute(f"ALTER TABLE {tableName} ADD COLUMN {self.columnName(object, key)} {self.columnType(object, key)};")
+		cursor.close()
+
+	def insertObject(self, tableName, object, atributes):
+		cursor = self.connection.cursor()
+		columnNames = ", ".join(map(lambda key: self.columnName(object, key), atributes.keys()))
+		values = ", ".join(map(lambda key: self.columnValue(object, key), atributes.keys()))
+		cursor.execute(f"INSERT INTO {tableName} (databaseID, {columnNames}) VALUES(DEFAULT, {values});")
+		cursor.close()
+
+	def columnName(self, object, atribute):
+		if type(getattr(object, atribute)).__name__ == "int":
+			return atribute + "_int"
+		elif type(getattr(object, atribute)).__name__ == "float":
+			return atribute + "_float"
+		elif type(getattr(object, atribute)).__name__ == "str":
+			return atribute + "_str"
+		elif type(getattr(object, atribute)).__name__ == "None":
+			return atribute + "_none"
+		else:
+			print(f"Got unexpected state for type {atribute}")
+
+	def columnType(self, object, atribute):
+		if type(getattr(object, atribute)).__name__ == "int":
+			return "INTEGER"
+		elif type(getattr(object, atribute)).__name__ == "float":
+			return "REAL"
+		elif type(getattr(object, atribute)).__name__ == "str":
+			return "VARCHAR(255)"
+		elif type(getattr(object, atribute)).__name__ == "None":
+			return "VARCHAR(1)"
+		else:
+			print(f"Got unexpected state for type {atribute}")
+
+	def columnValue(self, object, atribute):
+		if type(getattr(object, atribute)).__name__ == "int":
+			return str(getattr(object, atribute))
+		elif type(getattr(object, atribute)).__name__ == "float":
+			return str(getattr(object, atribute))
+		elif type(getattr(object, atribute)).__name__ == "str":
+			return f"'{getattr(object, atribute)}'"
+		elif type(getattr(object, atribute)).__name__ == "None":
+			return "n"
+		else:
+			print(f"Got unexpected state for type {atribute}")
+
+	def saveChanges(self):
+		cursor = self.connection.cursor()
+		cursor.execute(f'COMMIT')
 		cursor.close()
