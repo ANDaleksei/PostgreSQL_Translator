@@ -31,13 +31,14 @@ class DatabaseHelper:
 		return dict(filter(lambda atr: not atr[0].startswith("_"), allAtributes.items()))
 
 	def addColumns(self, tableName, object, atributes):
-		cursor = self.connection.cursor()
 		for key in atributes.keys():
-			cursor.execute(f"SELECT EXISTS(SELECT column_name FROM information_schema.columns WHERE table_name='{tableName}' and column_name='{self.columnName(object, key)}');")
-			isColumnExists = cursor.fetchall()[0][0]
+			cursor = self.connection.cursor()
+			cursor.execute(f"SELECT EXISTS(SELECT * FROM information_schema.columns WHERE table_name='{tableName}' and column_name='{self.columnName(object, key)}');")
+			record = cursor.fetchall()[0]
+			isColumnExists = record[0]
 			if not isColumnExists:
 				cursor.execute(f"ALTER TABLE {tableName} ADD COLUMN {self.columnName(object, key)} {self.columnType(object, key)};")
-		cursor.close()
+			cursor.close()
 
 	def insertObject(self, tableName, object, atributes, shouldCreateID = True):
 		cursor = self.connection.cursor()
@@ -60,23 +61,25 @@ class DatabaseHelper:
 		cursor.close()
 		return res
 
-	def updateObject(self, tableName, deletedAtributes, atributes, object):
+	def updateObject(self, tableName, deletedAtributes, atributes, object, shouldCreateID = True):
 		cursor = self.connection.cursor()
 		tuples = map(lambda atr: f"{self.columnName(object, atr)} = {self.columnValue(object, atr)}" , atributes)
 		deletedTuples = map(lambda atr: f"{atr} = Null" , deletedAtributes)
 		tupleString = ", ".join(list(tuples) + list(deletedTuples))
-		cursor.execute(f"UPDATE {tableName} SET {tupleString} where databaseid_int = {object.databaseid};")
+		print(tupleString)
+		idDetails = f"where databaseid_int = {object.databaseid}" if shouldCreateID else ""
+		cursor.execute(f"UPDATE {tableName} SET {tupleString} {idDetails};")
 		cursor.close()
 
 	def columnName(self, object, atribute):
 		if type(getattr(object, atribute)).__name__ == "int":
-			return atribute + "_int"
+			return atribute.lower() + "_int"
 		elif type(getattr(object, atribute)).__name__ == "float":
-			return atribute + "_float"
+			return atribute.lower() + "_float"
 		elif type(getattr(object, atribute)).__name__ == "str":
-			return atribute + "_str"
+			return atribute.lower() + "_str"
 		elif type(getattr(object, atribute)).__name__ == "None":
-			return atribute + "_none"
+			return atribute.lower() + "_none"
 		else:
 			print(f"Got unexpected state for type {atribute}")
 
@@ -108,3 +111,7 @@ class DatabaseHelper:
 		cursor = self.connection.cursor()
 		cursor.execute(f'COMMIT')
 		cursor.close()
+
+
+
+

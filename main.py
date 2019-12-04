@@ -1,12 +1,14 @@
 import psycopg2
 from realm import Realm
 
-def craeteDatabaseIfNeeded(databaseName, connection):
+def dropAndCreateDatabase():
+	connection = psycopg2.connect(dbname='postgres', user='ANDaleksei', password='', host='localhost')
 	connection.autocommit = True
 	cursor = connection.cursor()
-	cursor.execute(f'DROP DATABASE IF EXISTS {databaseName};')
-	cursor.execute(f'CREATE DATABASE {databaseName};')
+	cursor.execute(f'DROP DATABASE IF EXISTS translator;')
+	cursor.execute(f'CREATE DATABASE translator;')
 	cursor.close()
+	connection.close()
 
 class baseClass1:
 	base1 = 5
@@ -25,10 +27,6 @@ class baseCLass3(baseClass1, baseClass2):
 		self.c = c
 
 def setupConnection():
-	conn = psycopg2.connect(dbname='postgres', user='ANDaleksei', password='', host='localhost')
-	conn.autocommit = True
-	craeteDatabaseIfNeeded('translator', conn)
-	conn.close()
 	conn = psycopg2.connect(dbname='translator', user='ANDaleksei', password='', host='localhost')
 	return conn
 
@@ -44,6 +42,13 @@ def printObjects(realm, className):
 	for obj in objects:
 		print(obj.__dict__)
 
+def printClassPublicDict(classType):
+	print(classType.__name__)
+	for item in classType.__dict__.items():
+		if not item[0].startswith("_"):
+			print(item)
+
+dropAndCreateDatabase()
 realm = getRealm(setupConnection())
 
 obj1 = baseClass1()
@@ -67,6 +72,14 @@ printObjects(realm, "baseclass1")
 realm.delete(obj3)
 printObjects(realm, "baseclass3")
 
+baseClass2.newS = 99.9
+printClassPublicDict(baseClass2)
+print()
+realm.saveClass(baseClass2)
+printClassPublicDict(realm.getClass("baseClass2"))
+del baseClass2.base2
+realm.saveClass(baseClass2)
+printClassPublicDict(realm.getClass("baseclass2"))
 
 
 

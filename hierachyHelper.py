@@ -19,12 +19,17 @@ class HierachyHelper:
 
 	def saveClass(self, classType):
 		tableName = (classType.__name__ + "_meta").lower()
-		if not self.isClassSaved(classType.__name__):
+		isClassSaved = self.isClassSaved(classType.__name__)
+		if not isClassSaved:
 			self.databaseHelper.createTable(tableName, shouldCreateID = False)
 		setattr(classType, "classname_database", classType.__name__)
 		allAtributes = self.getAllAtributes(classType)
 		self.databaseHelper.addColumns(tableName, classType, allAtributes)
-		self.databaseHelper.insertObject(tableName, classType, allAtributes, shouldCreateID = False)
+		if isClassSaved:
+			deletedAtributes = self.getDeletedAtributes(allAtributes, tableName)
+			self.databaseHelper.updateObject(tableName, deletedAtributes, allAtributes, classType, shouldCreateID = False)
+		else:
+			self.databaseHelper.insertObject(tableName, classType, allAtributes, shouldCreateID = False)	
 		delattr(classType, "classname_database")
 		self.databaseHelper.saveChanges()
 
@@ -56,10 +61,20 @@ class HierachyHelper:
 		cursor = self.connection.cursor()
 		cursor.execute(f"SELECT * FROM {className.lower()}_meta;")
 		allRecords = cursor.fetchall()
-		descriptions = list([desc.name for desc in cursor.description[1:]])
-		descriptions = filter(lambda desc: not desc.endswith("database_str") , list(descriptions))
+		descriptions = list([desc.name for desc in cursor.description])
 		descriptions = map(lambda desc: desc[:desc.rfind("_")] , descriptions)
-		res = dict(zip(descriptions, allRecords[0][1:]))
+		res = dict(zip(descriptions, allRecords[0]))
+		res = dict(filter(lambda item: not item[0].endswith("classname_database"), res.items()))
+		cursor.close()
+		return res
+
+	def getDeletedAtributes(self, atributes, tableName):
+		cursor = self.connection.cursor()
+		cursor.execute(f"SELECT * FROM {tableName}")
+		descriptions = list([desc.name for desc in cursor.description])
+		res = dict(zip(descriptions, cursor.fetchall()[0]))
+		lowerAtr = list(map(lambda atr: atr.lower(), atributes))
+		res = dict(filter(lambda item: item[1] != None and (item[0][:item[0].rfind("_")] not in lowerAtr), res.items()))
 		cursor.close()
 		return res
 
