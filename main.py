@@ -8,13 +8,13 @@ def craeteDatabaseIfNeeded(databaseName, connection):
 	cursor.execute(f'CREATE DATABASE {databaseName};')
 	cursor.close()
 
-class baseTestClass1:
+class baseClass1:
 	base1 = 5
 
-class baseTestClass2:
+class baseClass2:
 	base2 = 4.0
 
-class testClass(baseTestClass1, baseTestClass2):
+class baseCLass3(baseClass1, baseClass2):
 	a = 1
 	b = 2.0
 	c = "str"
@@ -24,17 +24,50 @@ class testClass(baseTestClass1, baseTestClass2):
 		self.b = b
 		self.c = c
 
-conn = psycopg2.connect(dbname='postgres', user='ANDaleksei', password='', host='localhost')
-conn.autocommit = True
-craeteDatabaseIfNeeded('translator', conn)
-conn.close()
-conn = psycopg2.connect(dbname='translator', user='ANDaleksei', password='', host='localhost')
+def setupConnection():
+	conn = psycopg2.connect(dbname='postgres', user='ANDaleksei', password='', host='localhost')
+	conn.autocommit = True
+	craeteDatabaseIfNeeded('translator', conn)
+	conn.close()
+	conn = psycopg2.connect(dbname='translator', user='ANDaleksei', password='', host='localhost')
+	return conn
 
-realm = Realm(conn)
-realm.save(testClass(a=2))
-obj = testClass(b=4.9)
-obj.d = 1
-realm.save(obj)
-realm.getObjects("testClass")
+def closeConnection(conn):
+	conn.close()
 
-conn.close()
+def getRealm(conn):
+	return Realm(conn)
+
+def printObjects(realm, className):
+	objects = realm.getObjects(className)
+	print(f"Class: {className}")
+	for obj in objects:
+		print(obj.__dict__)
+
+realm = getRealm(setupConnection())
+
+obj1 = baseClass1()
+obj1.a = 1
+obj2 = baseClass2()
+obj2.b = 4.0
+obj3 = baseCLass3()
+obj3.c = "se"
+realm.save(obj1)
+printObjects(realm, "baseclass1")
+realm.save(obj2)
+printObjects(realm, "baseclass2")
+realm.save(obj3)
+printObjects(realm, "baseclass3")
+
+obj1.k = 4.3
+obj1.p = "sd"
+del obj1.a
+realm.save(obj1)
+printObjects(realm, "baseclass1")
+realm.delete(obj3)
+printObjects(realm, "baseclass3")
+
+
+
+
+
