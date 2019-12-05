@@ -1,5 +1,5 @@
 import psycopg2
-from realm import Realm
+import realmPackage
 
 def dropAndCreateDatabase():
 	connection = psycopg2.connect(dbname='postgres', user='ANDaleksei', password='', host='localhost')
