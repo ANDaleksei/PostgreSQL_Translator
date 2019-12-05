@@ -73,7 +73,6 @@ class Realm:
 			if cls.__name__ != "object":
 				self.saveHierachy(cls)
 				self.hierachyHelper.addLink(cls.__name__, classType.__name__)
-
 	def getClass(self, className):
 		if (type(object).__name__ != "type"):
 			return

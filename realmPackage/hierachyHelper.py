@@ -46,14 +46,17 @@ class HierachyHelper:
 		cursor = self.connection.cursor()
 		columnNames = "PARENT, CHILD"
 		values = f"'{parent}', '{child}'"
-		cursor.execute(f"INSERT INTO inheritance ({columnNames}) VALUES({values});")
+		cursor.execute(f"select exists(select * from inheritance where parent = '{parent}' and child = '{child}');")
+		isExist = cursor.fetchall()[0][0]
+		if not isExist:
+			cursor.execute(f"INSERT INTO inheritance ({columnNames}) VALUES({values});")
 		cursor.close()
 
 	def getParents(self, className):
 		cursor = self.connection.cursor()
 		cursor.execute(f"SELECT * FROM inheritance where child = '{className}';")
 		allRecords = cursor.fetchall()
-		parents = [record[1] for record in allRecords]
+		parents = [record[0] for record in allRecords]
 		cursor.close()
 		return parents
 

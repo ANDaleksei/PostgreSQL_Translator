@@ -77,7 +77,7 @@ class DatabaseHelper:
 			return atribute.lower() + "_float"
 		elif type(getattr(object, atribute)).__name__ == "str":
 			return atribute.lower() + "_str"
-		elif type(getattr(object, atribute)).__name__ == "None":
+		elif type(getattr(object, atribute)).__name__ == "NoneType":
 			return atribute.lower() + "_none"
 		else:
 			print(f"Got unexpected state for type {atribute}")
@@ -89,7 +89,7 @@ class DatabaseHelper:
 			return "REAL"
 		elif type(getattr(object, atribute)).__name__ == "str":
 			return "VARCHAR(255)"
-		elif type(getattr(object, atribute)).__name__ == "None":
+		elif type(getattr(object, atribute)).__name__ == "NoneType":
 			return "VARCHAR(1)"
 		else:
 			print(f"Got unexpected state for type {atribute}")
@@ -101,8 +101,8 @@ class DatabaseHelper:
 			return str(getattr(object, atribute))
 		elif type(getattr(object, atribute)).__name__ == "str":
 			return f"'{getattr(object, atribute)}'"
-		elif type(getattr(object, atribute)).__name__ == "None":
-			return "n"
+		elif type(getattr(object, atribute)).__name__ == "NoneType":
+			return "'n'"
 		else:
 			print(f"Got unexpected state for type {atribute}")
 

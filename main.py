@@ -37,7 +37,7 @@ def getRealm(conn):
 	return realmPackage.Realm(conn)
 
 def printObjects(realm, className):
-	objects = realm.getObjects(className, range={"b": (5.0, 15.0)})
+	objects = realm.getObjects(className)
 	print(f"Class: {className}")
 	for obj in objects:
 		print(obj.__dict__)
@@ -50,6 +50,11 @@ def printClassPublicDict(classType):
 
 dropAndCreateDatabase()
 realm = getRealm(setupConnection())
+
+obj = baseClass3()
+obj.none = None
+realm.save(obj)
+printObjects(realm, "baseClass3")
 
 
 

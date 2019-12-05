@@ -16,12 +16,16 @@ class ObjectHelper:
 		cursor.close()
 		descriptions = list([desc.name for desc in cursor.description])
 		# remove type sufix from column names
-		descriptions = list(map(lambda desc: desc[:desc.rfind("_")] , descriptions))
 		resDict = list()
 		for record in allRecords:
-			res = dict(zip(descriptions, record))
-			res = dict(filter(lambda item: item[1] != None, res.items()))
-			resDict.append(res)
+			curDict = dict()
+			for item in dict(zip(descriptions, record)).items():
+				value = item[1]
+				if value != None:
+					if item[0].endswith("none"):
+						value = None
+					curDict.update({item[0][:item[0].rfind("_")]: value})
+			resDict.append(curDict)
 		return resDict
 
 	def delete(self, object):
