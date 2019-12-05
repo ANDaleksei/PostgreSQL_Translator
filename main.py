@@ -34,7 +34,7 @@ def closeConnection(conn):
 	conn.close()
 
 def getRealm(conn):
-	return Realm(conn)
+	return realmPackage.Realm(conn)
 
 def printObjects(realm, className):
 	objects = realm.getObjects(className, range={"b": (5.0, 15.0)})
@@ -50,6 +50,7 @@ def printClassPublicDict(classType):
 
 dropAndCreateDatabase()
 realm = getRealm(setupConnection())
+
 
 
 

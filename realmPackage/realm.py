@@ -1,6 +1,6 @@
-from objectHelper import ObjectHelper
-from databaseHelper import DatabaseHelper
-from hierachyHelper import HierachyHelper
+from .objectHelper import ObjectHelper
+from .databaseHelper import DatabaseHelper
+from .hierachyHelper import HierachyHelper
 
 class Realm:
 

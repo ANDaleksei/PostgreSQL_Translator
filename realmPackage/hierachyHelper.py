@@ -1,4 +1,4 @@
-from databaseHelper import DatabaseHelper
+from .databaseHelper import DatabaseHelper
 import psycopg2
 
 class HierachyHelper:
