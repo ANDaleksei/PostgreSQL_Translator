@@ -39,8 +39,11 @@ class Realm:
 		self.objectHelper.delete(object)
 		self.databaseHelper.saveChanges()
 
-	def getObjects(self, className):
+	def getObjects(self, className, notNull=list(), keyValue=dict(), range=dict()):
 		if (object.__class__.__name__ == "str"):
+			return list()
+		areConditionsValid = self.validateConditions(notNull, keyValue, range)
+		if not areConditionsValid:
 			return list()
 		isDatabaseExists = self.databaseHelper.isDatabaseExist(className.lower())
 		if not isDatabaseExists:
@@ -53,7 +56,8 @@ class Realm:
 			for atr in dict.items():
 				setattr(obj, atr[0], atr[1])
 			objects.append(obj)
-		return objects
+
+		return self.filterObjects(objects, notNull, keyValue, range)
 
 	def saveClass(self, classType):
 		if (type(object).__name__ != "type"):
@@ -77,6 +81,65 @@ class Realm:
 		parentClasses = tuple(map(lambda name: self.getClass(name), parents))
 		dict = self.hierachyHelper.getClassDict(className)
 		return type(className, parentClasses, dict)
+
+	def filterObjects(self, objects, notNull, keyValue, range):
+		resObjects = list()
+		for obj in objects:
+			isGood = True
+			for nNull in notNull:
+				if nNull not in obj.__dict__:
+					isGood = False
+			if isGood:
+				resObjects.append(obj)
+		objects = resObjects[:]
+		resObjects = list()
+		for obj in objects:
+			isGood = True
+			for item in keyValue.items():
+				if item[0] not in obj.__dict__ or obj.__dict__[item[0]] != item[1]:
+					isGood = False
+			if isGood:
+				resObjects.append(obj)
+		objects = resObjects[:]
+		resObjects = list()
+		for obj in objects:
+			isGood = True
+			for item in range.items():
+				if item[0] not in obj.__dict__ or obj.__dict__[item[0]] < item[1][0] or obj.__dict__[item[0]] > item[1][1]:
+					isGood = False
+			if isGood:
+				resObjects.append(obj)
+		return resObjects
+
+	def validateConditions(self, notNull, keyValue, range):
+		if not isinstance(notNull, list):
+			print("Not null is not list")
+			return False
+		for elem in notNull:
+			if not isinstance(elem, str):
+				print("Element in not null is not a string")
+				return False
+		if not isinstance(keyValue, dict):
+			print("Key value is not dict")
+			return False
+		for item in keyValue.items():
+			if not isinstance(item[0], str):
+				print("Key is not a string")
+				return False
+		if not isinstance(range, dict):
+			print("Range is not dict")
+			return False
+		for item in range.items():
+			if not isinstance(item[0], str):
+				print("Key is not a string")
+				return False
+			if not isinstance(item[1], tuple):
+				print("Range value is not tuple")
+				return False
+			if len(item[1]) != 2:
+				print("Range value should have 2 values")
+				return False
+		return True
 
 
 

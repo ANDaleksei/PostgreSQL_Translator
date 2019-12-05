@@ -66,7 +66,6 @@ class DatabaseHelper:
 		tuples = map(lambda atr: f"{self.columnName(object, atr)} = {self.columnValue(object, atr)}" , atributes)
 		deletedTuples = map(lambda atr: f"{atr} = Null" , deletedAtributes)
 		tupleString = ", ".join(list(tuples) + list(deletedTuples))
-		print(tupleString)
 		idDetails = f"where databaseid_int = {object.databaseid}" if shouldCreateID else ""
 		cursor.execute(f"UPDATE {tableName} SET {tupleString} {idDetails};")
 		cursor.close()
