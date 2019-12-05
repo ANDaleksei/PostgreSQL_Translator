@@ -65,11 +65,21 @@ class HierachyHelper:
 		cursor.execute(f"SELECT * FROM {className.lower()}_meta;")
 		allRecords = cursor.fetchall()
 		descriptions = list([desc.name for desc in cursor.description])
-		descriptions = map(lambda desc: desc[:desc.rfind("_")] , descriptions)
-		res = dict(zip(descriptions, allRecords[0]))
-		res = dict(filter(lambda item: not item[0].endswith("classname_database"), res.items()))
+		#descriptions = map(lambda desc: desc[:desc.rfind("_")] , descriptions)
+		#res = dict(zip(descriptions, allRecords[0]))
+		#res = dict(filter(lambda item: not item[0].endswith("classname_database"), res.items()))
+		#cursor.close()
+		#return res
+
+		resDict = dict()
+		for item in dict(zip(descriptions, allRecords[0])).items():
+			value = item[1]
+			if value != None:
+				if item[0].endswith("none"):
+					value = None
+				resDict.update({item[0][:item[0].rfind("_")]: value})
 		cursor.close()
-		return res
+		return resDict
 
 	def getDeletedAtributes(self, atributes, tableName):
 		cursor = self.connection.cursor()

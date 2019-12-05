@@ -10,21 +10,6 @@ def dropAndCreateDatabase():
 	cursor.close()
 	connection.close()
 
-class baseClass1:
-	base1 = 5
-
-class baseClass2:
-	base2 = 4.0
-
-class baseClass3(baseClass1, baseClass2):
-	a = 1
-	b = 2.0
-	c = "str"
-
-	def __init__(self, a = 1, b = 2.0, c = "str"):
-		self.a = a
-		self.b = b
-		self.c = c
 
 def setupConnection():
 	conn = psycopg2.connect(dbname='translator', user='ANDaleksei', password='', host='localhost')
@@ -36,27 +21,9 @@ def closeConnection(conn):
 def getRealm(conn):
 	return realmPackage.Realm(conn)
 
-def printObjects(realm, className):
-	objects = realm.getObjects(className)
-	print(f"Class: {className}")
-	for obj in objects:
-		print(obj.__dict__)
-
-def printClassPublicDict(classType):
-	print(classType.__name__)
-	for item in classType.__dict__.items():
-		if not item[0].startswith("_"):
-			print(item)
-
 dropAndCreateDatabase()
-realm = getRealm(setupConnection())
-
-obj = baseClass3()
-obj.none = None
-realm.save(obj)
-printObjects(realm, "baseClass3")
-
-
-
-
+connection = setupConnection()
+realm = getRealm(connection)
+# cooment to use in pyrhon repl
+#closeConnection(connection)
 
