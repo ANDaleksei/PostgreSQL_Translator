@@ -36,15 +36,19 @@ class DatabaseHelper:
 			cursor.execute(f"SELECT EXISTS(SELECT * FROM information_schema.columns WHERE table_name='{tableName}' and column_name='{self.columnName(object, key)}');")
 			record = cursor.fetchall()[0]
 			isColumnExists = record[0]
-			if not isColumnExists:
+			if not isColumnExists and self.columnName(object, key) != None:
 				cursor.execute(f"ALTER TABLE {tableName} ADD COLUMN {self.columnName(object, key)} {self.columnType(object, key)};")
 			cursor.close()
 
 	def insertObject(self, tableName, object, atributes, shouldCreateID = True):
 		cursor = self.connection.cursor()
-		columnNames = ", ".join(map(lambda key: self.columnName(object, key), atributes.keys()))
-		values = ", ".join(map(lambda key: self.columnValue(object, key), atributes.keys()))
-		valuesInserted = f"(databaseID_int, {columnNames}) VALUES(DEFAULT, {values})" if shouldCreateID else f"({columnNames}) VALUES({values})"
+		filteredAtributes = dict()
+		for key, value in atributes.items():
+			if self.columnName(object, key) != None:
+				filteredAtributes.update({key: value})
+		columnNames = ", ".join(map(lambda key: self.columnName(object, key), filteredAtributes.keys()))
+		values = ", ".join(map(lambda key: self.columnValue(object, key), filteredAtributes.keys()))
+		valuesInserted = f"(databaseID_int{'' if len(columnNames) == 0 else ', ' + columnNames}) VALUES(DEFAULT{'' if len(values) == 0 else ', ' + values})" if shouldCreateID else f"({columnNames}) VALUES({values})"
 		cursor.execute(f"INSERT INTO {tableName} {valuesInserted};")
 		if shouldCreateID:
 			cursor.execute(f"SELECT MAX(databaseID_int) from {tableName}")
@@ -79,6 +83,16 @@ class DatabaseHelper:
 			return atribute.lower() + "_str"
 		elif type(getattr(object, atribute)).__name__ == "NoneType":
 			return atribute.lower() + "_none"
+		elif type(getattr(object, atribute)).__name__ == "list":
+			return atribute.lower() + "_list"
+		elif type(getattr(object, atribute)).__name__ == "tuple":
+			return atribute.lower() + "_tuple"
+		elif type(getattr(object, atribute)).__name__ == "set":
+			return atribute.lower() + "_set"
+		elif type(getattr(object, atribute)).__name__ == "frozenset":
+			return atribute.lower() + "_frozenset"
+		elif type(getattr(object, atribute)).__name__ == "dict":
+			return atribute.lower() + "_dict"
 		else:
 			print(f"Got unexpected state for type {atribute}")
 
@@ -90,6 +104,16 @@ class DatabaseHelper:
 		elif type(getattr(object, atribute)).__name__ == "str":
 			return "VARCHAR(255)"
 		elif type(getattr(object, atribute)).__name__ == "NoneType":
+			return "VARCHAR(1)"
+		elif type(getattr(object, atribute)).__name__ == "list":
+			return "VARCHAR(1)"
+		elif type(getattr(object, atribute)).__name__ == "tuple":
+			return "VARCHAR(1)"
+		elif type(getattr(object, atribute)).__name__ == "set":
+			return "VARCHAR(1)"
+		elif type(getattr(object, atribute)).__name__ == "frozenset":
+			return "VARCHAR(1)"
+		elif type(getattr(object, atribute)).__name__ == "dict":
 			return "VARCHAR(1)"
 		else:
 			print(f"Got unexpected state for type {atribute}")
@@ -103,6 +127,16 @@ class DatabaseHelper:
 			return f"'{getattr(object, atribute)}'"
 		elif type(getattr(object, atribute)).__name__ == "NoneType":
 			return "'n'"
+		elif type(getattr(object, atribute)).__name__ == "list":
+			return "'l'"
+		elif type(getattr(object, atribute)).__name__ == "tuple":
+			return "'t'"
+		elif type(getattr(object, atribute)).__name__ == "set":
+			return "'s'"
+		elif type(getattr(object, atribute)).__name__ == "frozenset":
+			return "'f'"
+		elif type(getattr(object, atribute)).__name__ == "dict":
+			return "'d'"
 		else:
 			print(f"Got unexpected state for type {atribute}")
 

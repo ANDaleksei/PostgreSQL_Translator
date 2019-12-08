@@ -1,6 +1,7 @@
 from .objectHelper import ObjectHelper
 from .databaseHelper import DatabaseHelper
 from .hierachyHelper import HierachyHelper
+from .containersHelper import ContainersHelper
 
 class Realm:
 
@@ -9,6 +10,7 @@ class Realm:
 		self.databaseHelper = DatabaseHelper(connection)
 		self.objectHelper = ObjectHelper(connection)
 		self.hierachyHelper = HierachyHelper(connection)
+		self.containersHelper = ContainersHelper(connection)
 
 	def save(self, object):
 		if (type(object).__name__ == "type"):
@@ -27,6 +29,7 @@ class Realm:
 			self.databaseHelper.updateObject(tableName, deletedAtributes, allAtributes, object)
 		else:
 			self.databaseHelper.insertObject(tableName, object, allAtributes)
+		self.containersHelper.saveContainers(object, tableName)
 		self.databaseHelper.saveChanges()
 
 	def delete(self, object):
