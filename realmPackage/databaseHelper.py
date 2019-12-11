@@ -61,7 +61,8 @@ class DatabaseHelper:
 		cursor.execute(f"SELECT * FROM {tableName} where databaseid_int = {object.databaseid}")
 		descriptions = list([desc.name for desc in cursor.description[1:]])
 		res = dict(zip(descriptions, cursor.fetchall()[0]))
-		res = dict(filter(lambda item: item[1] != None and (item[0][:item[0].rfind("_")] not in atributes), res.items()))
+		lowerAtributes = [atr.lower() for atr in atributes]
+		res = dict(filter(lambda item: item[1] != None and (item[0][:item[0].rfind("_")] not in lowerAtributes), res.items()))
 		cursor.close()
 		return res
 

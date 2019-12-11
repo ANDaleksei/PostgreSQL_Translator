@@ -25,19 +25,12 @@ dropAndCreateDatabase()
 connection = setupConnection()
 realm = getRealm(connection)
 
-class A:
-	pass
+from testCases import *
 
-obj = A()
-obj.someList = list([1, 1.0, 'ssdadsa', False, True])
-obj.someTuple = tuple([1, 4.0, 's'])
-obj.someSet = set([1, 2.0, 's'])
-obj.someFrozen = frozenset([1, 2.0, 's'])
-obj.someDict = dict({"key1": 1, 1: "12", "key3": "new"})
-obj.condition = True
-realm.save(obj)
-allObjects = realm.getObjects('a')
-print(allObjects[0].__dict__)
+testAddingObjects(realm)
+printObjects(realm, 'baseclass3')
+testUpdatingObjects(realm)
+printObjects(realm, 'baseclass3')
 
 # cooment to use in pyrhon repl
 closeConnection(connection)

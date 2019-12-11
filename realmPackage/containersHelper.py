@@ -116,6 +116,7 @@ class ContainersHelper:
 		self.createTypeTable('int', 'integer')
 		self.createTypeTable('float', 'real')
 		self.createTypeTable('str', 'varchar(255)')
+		self.createTypeTable('bool', 'boolean')
 		self.createTypeTable('none', 'varchar(1)')
 
 	def createTypeTable(self, typeName, columnName):
@@ -153,6 +154,8 @@ class ContainersHelper:
 			return "float"
 		elif type(value).__name__ == "str":
 			return "str"
+		elif type(value).__name__ == "bool":
+			return "bool"
 		else:
 			print(f"Got unexpected state for value {value}")
 
@@ -162,6 +165,8 @@ class ContainersHelper:
 		elif type(value).__name__ == "float":
 			return value
 		elif type(value).__name__ == "str":
+			return f"'{value}'"
+		elif type(value).__name__ == "bool":
 			return f"'{value}'"
 		else:
 			print(f"Got unexpected state for value {value}")

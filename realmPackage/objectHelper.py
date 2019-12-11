@@ -27,13 +27,13 @@ class ObjectHelper:
 					if item[0].endswith("none"):
 						value = None
 					elif item[0].endswith('_list'):
-						value = self.containersHelper.getSimpleContainer(item[0][:item[0].rfind('_')], tableName, record[0], 'list')
+						value = list(self.containersHelper.getSimpleContainer(item[0][:item[0].rfind('_')], tableName, record[0], 'list'))
 					elif item[0].endswith('_tuple'):
-						value = self.containersHelper.getSimpleContainer(item[0][:item[0].rfind('_')], tableName, record[0], 'tuple')
+						value = tuple(self.containersHelper.getSimpleContainer(item[0][:item[0].rfind('_')], tableName, record[0], 'tuple'))
 					elif item[0].endswith('_set'):
-						value = self.containersHelper.getSimpleContainer(item[0][:item[0].rfind('_')], tableName, record[0], 'set')
+						value = set(self.containersHelper.getSimpleContainer(item[0][:item[0].rfind('_')], tableName, record[0], 'set'))
 					elif item[0].endswith('_frozenset'):
-						value = self.containersHelper.getSimpleContainer(item[0][:item[0].rfind('_')], tableName, record[0], 'frozenset')
+						value = frozenset(self.containersHelper.getSimpleContainer(item[0][:item[0].rfind('_')], tableName, record[0], 'frozenset'))
 					elif item[0].endswith('_dict'):
 						value = self.containersHelper.getDictionary(item[0][:item[0].rfind('_')], tableName, record[0])
 					curDict.update({item[0][:item[0].rfind("_")]: value})
