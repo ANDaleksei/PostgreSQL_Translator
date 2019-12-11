@@ -29,7 +29,7 @@ class A:
 	pass
 
 obj = A()
-obj.someList = list([1, 1.0, 'ssdadsa'])
+obj.someList = list([1, 1.0, 'ssdadsa', False, True])
 obj.someTuple = tuple([1, 4.0, 's'])
 obj.someSet = set([1, 2.0, 's'])
 obj.someFrozen = frozenset([1, 2.0, 's'])
