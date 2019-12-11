@@ -79,6 +79,8 @@ class DatabaseHelper:
 			return atribute.lower() + "_int"
 		elif type(getattr(object, atribute)).__name__ == "float":
 			return atribute.lower() + "_float"
+		elif type(getattr(object, atribute)).__name__ == "bool":
+			return atribute.lower() + "_bool"
 		elif type(getattr(object, atribute)).__name__ == "str":
 			return atribute.lower() + "_str"
 		elif type(getattr(object, atribute)).__name__ == "NoneType":
@@ -94,13 +96,15 @@ class DatabaseHelper:
 		elif type(getattr(object, atribute)).__name__ == "dict":
 			return atribute.lower() + "_dict"
 		else:
-			print(f"Got unexpected state for type {atribute}")
+			print(f"Got unexpected state for type {type(getattr(object, atribute)).__name__}")
 
 	def columnType(self, object, atribute):
 		if type(getattr(object, atribute)).__name__ == "int":
 			return "INTEGER"
 		elif type(getattr(object, atribute)).__name__ == "float":
 			return "REAL"
+		elif type(getattr(object, atribute)).__name__ == "bool":
+			return "BOOLEAN"
 		elif type(getattr(object, atribute)).__name__ == "str":
 			return "VARCHAR(255)"
 		elif type(getattr(object, atribute)).__name__ == "NoneType":
@@ -116,12 +120,14 @@ class DatabaseHelper:
 		elif type(getattr(object, atribute)).__name__ == "dict":
 			return "VARCHAR(1)"
 		else:
-			print(f"Got unexpected state for type {atribute}")
+			print(f"Got unexpected state for type {type(getattr(object, atribute)).__name__}")
 
 	def columnValue(self, object, atribute):
 		if type(getattr(object, atribute)).__name__ == "int":
 			return str(getattr(object, atribute))
 		elif type(getattr(object, atribute)).__name__ == "float":
+			return str(getattr(object, atribute))
+		elif type(getattr(object, atribute)).__name__ == "bool":
 			return str(getattr(object, atribute))
 		elif type(getattr(object, atribute)).__name__ == "str":
 			return f"'{getattr(object, atribute)}'"
@@ -138,7 +144,7 @@ class DatabaseHelper:
 		elif type(getattr(object, atribute)).__name__ == "dict":
 			return "'d'"
 		else:
-			print(f"Got unexpected state for type {atribute}")
+			print(f"Got unexpected state for type {type(getattr(object, atribute)).__name__}")
 
 	def saveChanges(self):
 		cursor = self.connection.cursor()
